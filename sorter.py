@@ -5,11 +5,21 @@ import math
 
 window_width = 500
 n = 100
+row_size = int(math.sqrt(n))
+assert row_size * row_size == n
 win = GraphWin(width=window_width, height=window_width)
 array = []
 board = []
-row_size = int(math.sqrt(n))
 square_width = int(window_width/row_size)
+
+algo = None
+while not algo:
+    algo = input('''Choose a sort
+    a) Heapsort
+    b) Mergesort
+    c) Selection Sort
+    ''')
+
 
 class Heap:
     def __init__(self):
@@ -81,6 +91,51 @@ def heapsort(array, dim):
     print(array)
     return array
  
+def mergesort(array, dim, start, stop):
+    if len(array[start:stop]) <= 1:
+        return
+    else:
+        split = int((start + stop)/2)
+        mergesort(array, dim, start, split)
+        mergesort(array, dim, split, stop)
+        i = start
+        j = split
+        merged = []
+        while i < split or j < stop:
+            if i < split and j < stop:
+                if array[i][dim] < array[j][dim]:
+                    merged.append(array[i])
+                    i += 1
+                else:
+                    merged.append(array[j])
+                    j += 1
+            elif i < split:
+                merged += array[i:split]
+                break
+            elif j < stop:
+                merged += array[j:stop]
+                break
+        for k in range(len(merged)):
+            array[start + k] = merged[k]
+            color = color_rgb(*array[start + k])
+            board[start + k].setFill(color)
+            board[start + k].setOutline(color)
+        return
+
+def selection(array, dim):
+    for i in range(len(array)):
+        min_ind = i 
+        for j in range(i, len(array)):
+            if array[j][dim] < array[min_ind][dim]:
+                min_ind = j
+        array[i], array[min_ind] = array[min_ind], array[i]
+        board[i].setFill(color_rgb(*array[i]))
+        board[i].setOutline(color_rgb(*array[i]))
+        board[min_ind].setFill(color_rgb(*array[min_ind]))
+        board[min_ind].setOutline(color_rgb(*array[min_ind]))
+
+
+
 for i in range(0, row_size*square_width, square_width):
     for j in range(0, row_size*square_width, square_width):
         color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -96,10 +151,16 @@ for i in range(0, row_size*square_width, square_width):
         board.append(rect)
 
 # heap
+if algo == 'a':
+    heapsort(array, 0)
+elif algo == 'b':
+    mergesort(array, 1, 0, n)
+elif algo == 'c':
+    selection(array, 0)
+else:
+    print("try again")
+
 #cProfile.run('heapsort(array, 2)') 
-print(heapsort(array, 2))
-print(heapsort(array, 1))
-print(heapsort(array, 0))
 
 input("press enter to close")
 win.close()
